@@ -1,0 +1,53 @@
+/*
+ * Código para sensor UV GUVAS12SD
+ * Este sensor proporciona una salida analógica lineal con la intensidad UV en mW/cm²
+ * 
+ * Conexiones:
+ * - VCC del sensor a 5V de Arduino
+ * - GND del sensor a GND de Arduino
+ * - OUT del sensor a una entrada analógica (por ejemplo A0)
+ */
+
+const int sensorPin = A0;  // Pin analógico conectado al sensor
+const float voltajeReferencia = 5.0; // Voltaje de referencia (depende de tu Arduino)
+const int resolucionADC = 1023; // Resolución del ADC (10 bits = 1023)
+
+// Parámetros de calibración (pueden necesitar ajuste según tu sensor)
+const float sensibilidad = 0.1; // 0.1V por mW/cm² (valor típico para GUVAS12SD)
+const float voltajeOffset = 1.0; // Voltaje de salida a 0 mW/cm² (puede variar)
+
+void setup() {
+  Serial.begin(9600); // Inicia comunicación serial
+  Serial.println("Iniciando lectura sensor UV GUVAS12SD");
+  Serial.println("Intensidad UV (mW/cm²)");
+  
+  // Configura el voltaje de referencia analógico (opcional)
+  // analogReference(DEFAULT); // Usa VCC (normalmente 5V)
+}
+
+void loop() {
+  // Leer el valor analógico
+  int valorADC = analogRead(sensorPin);
+  
+  // Convertir a voltaje
+  float voltaje = (valorADC * voltajeReferencia) / resolucionADC;
+  
+  // Calcular intensidad UV (mW/cm²)
+  float intensidadUV = (voltaje - voltajeOffset) / sensibilidad;
+  
+  // Asegurarse de que no hay valores negativos
+  if(intensidadUV < 0) {
+    intensidadUV = 0;
+  }
+  
+  // Mostrar resultados
+  Serial.print("Valor ADC: ");
+  Serial.print(valorADC);
+  Serial.print(" | Voltaje: ");
+  Serial.print(voltaje, 3);
+  Serial.print("V | Intensidad UV: ");
+  Serial.print(intensidadUV, 3);
+  Serial.println(" mW/cm²");
+  
+  delay(1000); // Espera 1 segundo entre lecturas
+}
